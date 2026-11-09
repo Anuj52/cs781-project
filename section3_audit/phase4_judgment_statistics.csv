@@ -1,0 +1,6 @@
+Split_Name,Document_Count,Class_0_Dismissed,Class_1_Allowed,Class_0_Pct,Class_1_Pct,Mean_Words,Median_Words,P90_Words,Max_Words,Zone_Slicing_Policy
+Official Training Split,37387,22067,15320,59.02,40.98,3450,3240,12500,52140,"4-zone slicing (Head, Mid1, Mid2, Tail) at 256 or 384 tokens/zone"
+Official Development Split,1988,994,994,50.0,50.0,3380,3195,12050,46800,Balanced 50/50 evaluation set used for adapter threshold tuning
+Full Labelled Corpus (Train + Dev),39375,23061,16314,58.57,41.43,3446,3240,12500,52140,Full-corpus training for competition submissions (Prior positive = 0.4143)
+Self-Created Split Holdout (p4-ex-3),5907,3461,2446,58.59,41.41,3440,3235,12450,48900,"15% internal holdout from 39,375 cases for BitFit validation"
+Official Test Split,1517,-1,-1,-1.0,-1.0,3410,3210,12300,49500,Predictions balanced near 50% prior (e.g. 759 allowed / 758 dismissed)

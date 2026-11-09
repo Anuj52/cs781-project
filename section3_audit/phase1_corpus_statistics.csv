@@ -1,0 +1,6 @@
+Source,Raw_Documents_Seen,Train_Documents,Val_Documents,Dropped_Empty_Docs,Filtering_Rule_Applied,Filtered_Train_Docs,Filtered_Val_Docs,Packed_Train_Tokens,Packed_Val_Tokens,Train_Token_Pct_Pool,Sampling_Weight_In_Code,Claimed_Mixture_In_Report
+Central and State Acts,18826,18455,367,4,"keep_prob=1.0, val_pct=2; dropped length 0",18455,367,145598668,3417769,27.32,0.273,30%
+Supreme Court of India,55549,54443,1085,21,"keep_prob=1.0, val_pct=2; dropped length 0",54443,1085,249825643,4797511,46.87,0.469,45%
+Tribunals (Subsampled 10%),869132,85084,17132,39,"keep_prob=0.10, val_pct=2; drop if non-ASCII control > 0.1% or ? > 5%; strip Devanagari regex [ऀ-ॿ]",85052,17125,137567074,28404707,25.81,0.258,25%
+High Courts (Omitted),1000000,0,0,0,Excluded 100% prior to active BPE packing due to severe OCR degradation and compute constraints,0,0,0,0,0.0,0.0,0% (Excluded)
+Total Available Pretraining Pool,943507,157982,18584,64,Clean tokenization pool saved in binary format,157950,18577,532991385,36620017,100.0,1.0,533M pool (163.84M trained)

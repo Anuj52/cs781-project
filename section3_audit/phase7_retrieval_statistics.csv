@@ -1,0 +1,4 @@
+Split_Name,Query_Count,Candidate_Pool_Size,Avg_Relevant_Per_Query,Min_Relevant,Max_Relevant,Retrieval_Target_K,Evaluation_Metric,Reported_Jurisdictional_Match_Pct,Dev_Micro_F1_At_7,Codabench_Best_Micro_F1,Verification_Source_Status
+Train,250,2500,4.62,1,15,7,Micro-F1@7,82.0,-1.0,-1.0,Benchmark card specification; local notebook outputs were cleared
+Dev,50,500,4.5,1,12,7,Micro-F1@7,80.5,0.368,-1.0,Graph diffusion boosted score from 0.284 to 0.368; local code present in cell 5-6
+Test,100,1000,-1.0,-1,-1,7,Micro-F1@7,-1.0,-1.0,0.3627,"VERIFIED via codabench_all_77_submissions.csv row 71 (Submission ID 1038781, Rank 79)"

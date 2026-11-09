@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CS781 – Architecture Discovery & Mapping Dashboard</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* Custom scrollbars and transitions */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(120, 120, 120, 0.3);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(120, 120, 120, 0.5);
+    }
+    .truncate-custom {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-4 md:p-6 min-h-screen">
+
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- HEADER SECTION -->
+    <header class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200">
+            CS781 Capstone in Legal NLP
+          </span>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
+            ✓ 56 Files Audited
+          </span>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">
+            7 Competition Phases
+          </span>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight mt-2 text-[var(--foreground)]">
+          Model Architecture Discovery & Interactive Mapping Agent
+        </h1>
+        <p class="text-sm text-[var(--muted-foreground)] mt-1 max-w-3xl">
+          Automated discovery, structural detection, and interactive assignment of every model architecture, training notebook, checkpoint, and experiment across the CS781 project repository.
+        </p>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btnConfirmAll" class="px-3.5 py-2 text-xs font-medium rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          Confirm All Auto-Detected
+        </button>
+        <button id="btnExportCSV" class="px-3.5 py-2 text-xs font-medium rounded-lg bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)] shadow-sm transition-colors flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Export CSV
+        </button>
+        <button id="btnExportJSON" class="px-3.5 py-2 text-xs font-medium rounded-lg border border-[var(--border)] bg-[var(--card)] hover:bg-black/5 dark:hover:bg-white/5 text-[var(--foreground)] transition-colors flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+          Export JSON
+        </button>
+        <button id="btnResetAll" class="px-3 py-2 text-xs font-medium rounded-lg border border-[var(--border)] hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 text-[var(--muted-foreground)] transition-colors">
+          Reset
+        </button>
+      </div>
+    </header>
+
+    <!-- METRICS & STATS KPI CARDS -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+        <p class="text-xs text-[var(--muted-foreground)] uppercase font-semibold">Total Files</p>
+        <p class="text-2xl font-bold mt-1 text-[var(--foreground)]" id="kpiTotalFiles">56</p>
+        <p class="text-[11px] text-gray-500 mt-0.5">32 Notebooks, 24 Aux</p>
+      </div>
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+        <p class="text-xs text-[var(--muted-foreground)] uppercase font-semibold">Architectures</p>
+        <p class="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">4 Base</p>
+        <p class="text-[11px] text-gray-500 mt-0.5">Arch1, Arch2, Arch3, Arch4</p>
+      </div>
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+        <p class="text-xs text-[var(--muted-foreground)] uppercase font-semibold">Pretrained Base</p>
+        <p class="text-2xl font-bold mt-1 text-indigo-600 dark:text-indigo-400">201.44M</p>
+        <p class="text-[11px] text-gray-500 mt-0.5">Arch 4 Hybrid GQA</p>
+      </div>
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+        <p class="text-xs text-[var(--muted-foreground)] uppercase font-semibold">User Confirmed</p>
+        <p class="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400" id="kpiConfirmed">0</p>
+        <p class="text-[11px] text-gray-500 mt-0.5" id="kpiConfirmedPct">0% verified</p>
+      </div>
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+        <p class="text-xs text-[var(--muted-foreground)] uppercase font-semibold">Submissions</p>
+        <p class="text-2xl font-bold mt-1 text-purple-600 dark:text-purple-400">77 Runs</p>
+        <p class="text-[11px] text-gray-500 mt-0.5">All 7 Phases Logged</p>
+      </div>
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+        <p class="text-xs text-[var(--muted-foreground)] uppercase font-semibold">Top Result</p>
+        <p class="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400">0.8322</p>
+        <p class="text-[11px] text-gray-500 mt-0.5">P1 Rank 1 (Sub 964323)</p>
+      </div>
+    </div>
+
+    <!-- VIEW TOGGLE TABS & SEARCH / FILTER TOOLBAR -->
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[var(--border)] pb-3">
+        <!-- View Tabs -->
+        <div class="flex items-center space-x-2">
+          <button id="tabTableView" class="px-4 py-2 text-xs font-semibold rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            Interactive Table Mapping
+          </button>
+          <button id="tabTreeView" class="px-4 py-2 text-xs font-medium rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            Architecture Hierarchy Tree
+          </button>
+          <button id="tabInventoryView" class="px-4 py-2 text-xs font-medium rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Phase-wise Inventory
+          </button>
+        </div>
+
+        <div class="text-xs text-[var(--muted-foreground)]">
+          Displaying <span id="displayCount" class="font-bold text-[var(--foreground)]">56</span> of 56 entries
+        </div>
+      </div>
+
+      <!-- Filters Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+        <!-- Search bar -->
+        <div class="relative md:col-span-1">
+          <input type="text" id="searchInput" placeholder="Search files, classes, models..." class="w-full px-3 py-2 text-xs rounded-lg border border-[var(--border)] bg-transparent text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-blue-500">
+        </div>
+
+        <!-- Architecture Filter -->
+        <div>
+          <select id="filterArch" class="w-full px-2.5 py-2 text-xs rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <option value="ALL">All Architectures</option>
+            <option value="Arch1">Arch 1 (Standard Causal Decoder)</option>
+            <option value="Arch2">Arch 2 (Pre-LN Encoder-Decoder)</option>
+            <option value="Arch3">Arch 3 (Sliding Window Attention)</option>
+            <option value="Arch4">Arch 4 (Hybrid Local-Global GQA)</option>
+            <option value="Shared">Shared / Comparative</option>
+            <option value="None">Non-Model (Data / Docs / Audit)</option>
+          </select>
+        </div>
+
+        <!-- Phase Filter -->
+        <div>
+          <select id="filterPhase" class="w-full px-2.5 py-2 text-xs rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <option value="ALL">All Phases</option>
+            <option value="Phase 1">Phase 1 – Legal LM Pretraining</option>
+            <option value="Phase 2">Phase 2 – Legal NER</option>
+            <option value="Phase 3">Phase 3 – Rhetorical Role Prediction</option>
+            <option value="Phase 4">Phase 4 – Court Judgment Prediction</option>
+            <option value="Phase 5">Phase 5 – Legal Statute Identification</option>
+            <option value="Phase 6">Phase 6 – Abstractive Summarization</option>
+            <option value="Phase 7">Phase 7 – Prior Case Retrieval</option>
+            <option value="Shared">Shared / Multiple Phases</option>
+            <option value="Unassigned">Unassigned</option>
+          </select>
+        </div>
+
+        <!-- Role Filter -->
+        <div>
+          <select id="filterRole" class="w-full px-2.5 py-2 text-xs rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <option value="ALL">All Roles</option>
+            <option value="Model Definition">Model Definition</option>
+            <option value="Training">Training</option>
+            <option value="Fine-tuning">Fine-tuning</option>
+            <option value="Evaluation">Evaluation</option>
+            <option value="Inference">Inference</option>
+            <option value="Data Preprocessing">Data Preprocessing</option>
+            <option value="Configuration">Configuration</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Verification Filter -->
+        <div>
+          <select id="filterVerification" class="w-full px-2.5 py-2 text-xs rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <option value="ALL">All Verification Statuses</option>
+            <option value="Automatically Detected">Automatically Detected</option>
+            <option value="User Confirmed">User Confirmed</option>
+            <option value="Needs Verification">Needs Verification</option>
+            <option value="Uncertain">Uncertain</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN VIEW 1: INTERACTIVE TABLE VIEW -->
+    <div id="containerTableView" class="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-black/5 dark:bg-white/5 border-b border-[var(--border)] text-[var(--muted-foreground)] uppercase tracking-wider text-[11px] font-semibold">
+              <th class="py-3 px-3.5 w-44">Architecture</th>
+              <th class="py-3 px-3.5">Implementation File</th>
+              <th class="py-3 px-3.5 w-56">Phase</th>
+              <th class="py-3 px-3.5 w-48">Experiment / Submission</th>
+              <th class="py-3 px-3.5 w-40">Role</th>
+              <th class="py-3 px-3.5 w-44">Verification</th>
+              <th class="py-3 px-3.5 text-center w-20">Inspect</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-[var(--border)]">
+            <!-- Rows injected by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MAIN VIEW 2: ARCHITECTURE HIERARCHY TREE VIEW (Section 5) -->
+    <div id="containerTreeView" class="hidden space-y-4">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 shadow-sm">
+        <h3 class="text-base font-semibold text-[var(--foreground)]">Architecture-to-File Relationships</h3>
+        <p class="text-xs text-[var(--muted-foreground)] mt-1">
+          Hierarchical view grouping files under each core architecture by role: Model Definition, Training Notebook, Fine-tuning Script, Evaluation, Inference, Configuration, and Checkpoint.
+        </p>
+      </div>
+
+      <div id="treeContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- MAIN VIEW 3: PHASE-WISE INVENTORY VIEW -->
+    <div id="containerInventoryView" class="hidden bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 shadow-sm space-y-6">
+      <div>
+        <h3 class="text-base font-semibold text-[var(--foreground)]">Phase-Wise Architecture Inventory</h3>
+        <p class="text-xs text-[var(--muted-foreground)] mt-1">
+          Complete breakdown of foundational and adapted models powering each of the 7 legal intelligence phases.
+        </p>
+      </div>
+
+      <div id="phaseCardsContainer" class="space-y-4">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- EVIDENCE & MODEL SPECS MODAL -->
+  <div id="evidenceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-5">
+      <div class="flex items-start justify-between border-b border-[var(--border)] pb-4">
+        <div>
+          <span id="modalArchBadge" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200">
+            Architecture
+          </span>
+          <h2 id="modalFileName" class="text-lg font-bold text-[var(--foreground)] mt-1.5 break-all">File Name</h2>
+          <p id="modalPhaseRole" class="text-xs text-[var(--muted-foreground)]">Phase & Role</p>
+        </div>
+        <button id="modalCloseBtn" class="p-1 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 text-[var(--muted-foreground)]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Evidence Box -->
+      <div class="bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 rounded-xl p-4">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Audit Evidence Lineage
+        </h4>
+        <p id="modalEvidence" class="text-xs text-[var(--foreground)] mt-2 leading-relaxed">Evidence text...</p>
+      </div>
+
+      <!-- Specs Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div class="p-3 rounded-lg border border-[var(--border)] bg-black/5 dark:bg-white/5">
+          <p class="text-[11px] text-[var(--muted-foreground)] font-semibold">Parameters</p>
+          <p id="modalParams" class="text-xs font-bold mt-0.5">-</p>
+        </div>
+        <div class="p-3 rounded-lg border border-[var(--border)] bg-black/5 dark:bg-white/5">
+          <p class="text-[11px] text-[var(--muted-foreground)] font-semibold">Layers / Heads</p>
+          <p id="modalLayersHeads" class="text-xs font-bold mt-0.5">-</p>
+        </div>
+        <div class="p-3 rounded-lg border border-[var(--border)] bg-black/5 dark:bg-white/5">
+          <p class="text-[11px] text-[var(--muted-foreground)] font-semibold">Hidden / FFN Dim</p>
+          <p id="modalDims" class="text-xs font-bold mt-0.5">-</p>
+        </div>
+        <div class="p-3 rounded-lg border border-[var(--border)] bg-black/5 dark:bg-white/5">
+          <p class="text-[11px] text-[var(--muted-foreground)] font-semibold">Attention Mechanism</p>
+          <p id="modalAttn" class="text-xs font-bold mt-0.5">-</p>
+        </div>
+        <div class="p-3 rounded-lg border border-[var(--border)] bg-black/5 dark:bg-white/5">
+          <p class="text-[11px] text-[var(--muted-foreground)] font-semibold">Position & Norm</p>
+          <p id="modalPosNorm" class="text-xs font-bold mt-0.5">-</p>
+        </div>
+        <div class="p-3 rounded-lg border border-[var(--border)] bg-black/5 dark:bg-white/5">
+          <p class="text-[11px] text-[var(--muted-foreground)] font-semibold">Weights Initialization</p>
+          <p id="modalWeightsInit" class="text-xs font-bold mt-0.5">-</p>
+        </div>
+      </div>
+
+      <!-- Classes & Methods -->
+      <div class="space-y-3">
+        <div>
+          <p class="text-[11px] font-semibold text-[var(--muted-foreground)] uppercase">Python Classes Defined</p>
+          <p id="modalClasses" class="text-xs font-mono bg-black/5 dark:bg-white/5 p-2.5 rounded-lg border border-[var(--border)] mt-1">-</p>
+        </div>
+        <div>
+          <p class="text-[11px] font-semibold text-[var(--muted-foreground)] uppercase">Adaptation / PEFT Method</p>
+          <p id="modalAdaptation" class="text-xs text-[var(--foreground)] mt-0.5">-</p>
+        </div>
+        <div>
+          <p class="text-[11px] font-semibold text-[var(--muted-foreground)] uppercase">Associated Checkpoint(s)</p>
+          <p id="modalCheckpoints" class="text-xs font-mono text-emerald-600 dark:text-emerald-400 mt-0.5">-</p>
+        </div>
+        <div>
+          <p class="text-[11px] font-semibold text-[var(--muted-foreground)] uppercase">Experiment / Submission Lineage</p>
+          <p id="modalExperiment" class="text-xs text-[var(--foreground)] mt-0.5">-</p>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-[var(--border)] flex justify-end">
+        <button id="modalOkBtn" class="px-4 py-2 text-xs font-medium rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)]">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMBEDDED DATA & APPLICATION SCRIPT -->
+  <script>
+    const INITIAL_DATA = [
+  {
+    "file": "arch1_model.ipynb",
+    "architecture": "Arch1 (Standard Causal Decoder)",
+    "model_classes": "LegalDecoderLM, TransformerBlock, CausalSelfAttention, FeedForward",
+    "params": "88,206,336 (~88.2M)",
+    "layers": 8,
+    "heads": 8,
+    "hidden_dim": 768,
+    "ffn_dim": 3072,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Multi-Head Causal Self-Attention (MHA) with causal mask",
+    "pos_encoding": "Learned Absolute Positional Embeddings (wpe)",
+    "norm_type": "Pre-LN (LayerNorm with eps=1e-5)",
+    "activation": "GELU",
+    "weights_init": "Randomly Initialized (Trained from scratch on Indian Legal Corpus)",
+    "adaptation_method": "None (Full Pretraining)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Training",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "run_arch1_real/best.pt, run_arch1_real/latest.pt",
+    "experiment_id": "run_arch1_real, Phase 1 Arch1 Baseline",
+    "evidence": "Implements 8-layer standard causal decoder LegalDecoderLM from scratch. Trains on acts_train.bin, sc_train.bin, tribunals_train_f.bin. Reached validation loss ~4.12. Checkpoint saved to run_arch1_real/best.pt."
+  },
+  {
+    "file": "arch1_genarate.ipynb",
+    "architecture": "Arch1 (Standard Causal Decoder)",
+    "model_classes": "LegalDecoderLM, TransformerBlock, CausalSelfAttention, FeedForward",
+    "params": "88,206,336 (~88.2M)",
+    "layers": 8,
+    "heads": 8,
+    "hidden_dim": 768,
+    "ffn_dim": 3072,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Multi-Head Causal Self-Attention (MHA)",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN (LayerNorm)",
+    "activation": "GELU",
+    "weights_init": "Pretrained (Loads run_arch1_real/best.pt)",
+    "adaptation_method": "None (Pure Generation / Inference)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Inference",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "train-model-1/run_arch1_real/best.pt, model_weights_only.pt",
+    "experiment_id": "Phase 1 Arch1 Generation, Submission 956293 (Score: 0.8176)",
+    "evidence": "Loads run_arch1_real/best.pt, runs autoregressive generation for 1,000 prompt queries in test.json with top-p/temperature decoding, formats zip package for Phase 1 Codabench."
+  },
+  {
+    "file": "arch2-model.ipynb",
+    "architecture": "Arch2 (Pre-LN Encoder-Decoder)",
+    "model_classes": "TransformerModelPreLN, TransformerEncoderPreLN, TransformerDecoderPreLN, TransformerEncoderLayerPreLN, TransformerDecoderLayerPreLN, MultiHeadAttention, FeedForward",
+    "params": "160,680,960 (~160.7M)",
+    "layers": "6 Encoder + 6 Decoder (12 total)",
+    "heads": 8,
+    "hidden_dim": 768,
+    "ffn_dim": 3072,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Encoder Self-Attention, Decoder Causal Masked Self-Attention, Decoder Cross-Attention (MHA)",
+    "pos_encoding": "Sinusoidal / Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN (LayerNorm before attention and FFN)",
+    "activation": "GELU",
+    "weights_init": "Randomly Initialized (Trained from scratch)",
+    "adaptation_method": "None (Full Pretraining)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Training",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "run_arch2_preln_efficient/best.pt, run_arch2_preln_efficient/latest.pt",
+    "experiment_id": "run_arch2_preln_efficient",
+    "evidence": "Implements 6-layer encoder + 6-layer decoder Pre-LN Transformer. Trains on packed binary tokens with cross-entropy loss. Checkpoints to run_arch2_preln_efficient/best.pt."
+  },
+  {
+    "file": "arch2 FULL ENCODER-DECODER TRANSFORMER .ipynb",
+    "architecture": "Arch2 (Post-LN Encoder-Decoder)",
+    "model_classes": "TransformerModel, TransformerEncoder, TransformerDecoder, TransformerEncoderLayer, TransformerDecoderLayer, MultiHeadAttention, FeedForward",
+    "params": "160,680,960 (~160.7M)",
+    "layers": "6 Encoder + 6 Decoder",
+    "heads": 8,
+    "hidden_dim": 768,
+    "ffn_dim": 3072,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Standard Multi-Head Self & Cross Attention",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Post-LN (LayerNorm after residual additions)",
+    "activation": "ReLU/GELU",
+    "weights_init": "Randomly Initialized (Trained from scratch)",
+    "adaptation_method": "None (Full Pretraining)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Model Definition",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "run_arch2/latest.pt, best.pt",
+    "experiment_id": "run_arch2 (Post-LN ablation)",
+    "evidence": "Original Post-LN Seq2Seq architecture implementation. Exhibited convergence difficulties and gradient instability compared to Pre-LN."
+  },
+  {
+    "file": "arch2-preln-eval-generate.ipynb",
+    "architecture": "Arch2 (Pre-LN Encoder-Decoder)",
+    "model_classes": "TransformerModelPreLN, TransformerEncoderPreLN, TransformerDecoderPreLN",
+    "params": "160,680,960 (~160.7M)",
+    "layers": "6 Encoder + 6 Decoder",
+    "heads": 8,
+    "hidden_dim": 768,
+    "ffn_dim": 3072,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Encoder-Decoder Multi-Head Attention",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN",
+    "activation": "GELU",
+    "weights_init": "Pretrained (Loads run_arch2_preln_efficient/latest.pt)",
+    "adaptation_method": "None (Generation / Evaluation)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Inference",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "run_arch2_preln_efficient/latest.pt",
+    "experiment_id": "Phase 1 Arch2 Eval Run",
+    "evidence": "Loads Arch2 Pre-LN checkpoint, feeds prompts to encoder and decodes autoregressive continuations with cross-attention. Notes cross-attention exposure bias on open-ended prefix completion."
+  },
+  {
+    "file": "arach3-train.ipynb",
+    "architecture": "Arch3 (Sliding Window Attention Decoder)",
+    "model_classes": "LegalDecoderLM, TransformerBlock, SlidingWindowCausalSelfAttention, FeedForward",
+    "params": "242,536,960 (~242.5M)",
+    "layers": 16,
+    "heads": 16,
+    "hidden_dim": 1024,
+    "ffn_dim": 4096,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Sliding-Window Causal Self-Attention (W=256/512 window)",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN (LayerNorm)",
+    "activation": "GELU",
+    "weights_init": "Randomly Initialized (Trained from scratch)",
+    "adaptation_method": "None (Full Pretraining)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Training",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "run_arch3_swa_v2/best.pt, run_arch3_swa_v2/latest.pt",
+    "experiment_id": "run_arch3_swa_v2",
+    "evidence": "Defines and trains 16-layer, 1024-dim Sliding Window Attention Decoder on packed legal tokens. Achieved training loss down to 2.409 and val loss 2.523. Checkpoint saved to run_arch3_swa_v2/best.pt."
+  },
+  {
+    "file": "arach3-inference.ipynb",
+    "architecture": "Arch3 (Sliding Window Attention Decoder)",
+    "model_classes": "LegalDecoderLM, TransformerBlock, SlidingWindowCausalSelfAttention, FeedForward",
+    "params": "242,536,960 (~242.5M)",
+    "layers": 16,
+    "heads": 16,
+    "hidden_dim": 1024,
+    "ffn_dim": 4096,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Sliding-Window Causal Self-Attention (W=256)",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN",
+    "activation": "GELU",
+    "weights_init": "Pretrained (Loads run_arch3_swa_v2/latest.pt)",
+    "adaptation_method": "None (Inference / Evaluation)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Inference",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "run_arch3_swa_v2/latest.pt",
+    "experiment_id": "Phase 1 Arch3 Evaluation Run, Validation Loss 2.381",
+    "evidence": "Loads run_arch3_swa_v2/latest.pt, evaluates validation loss across val bins (loss: 2.381), and generates continuations for test prompts."
+  },
+  {
+    "file": "architecture-4-hybrid-local-global-grouped-query.ipynb",
+    "architecture": "Arch4 (Hybrid Local-Global GQA Decoder)",
+    "model_classes": "Architecture4, Arch4Block, GQAAttention, SwiGLU, RotaryEmbedding",
+    "params": "195M - 201.44M",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads (2:1 GQA)",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Interleaved Local (W=256) and Global Grouped-Query Attention (GQA) with causal masking (L-L-G-L-L-G)",
+    "pos_encoding": "Rotary Position Embeddings (RoPE, base theta=10000.0)",
+    "norm_type": "Pre-RMSNorm (eps=1e-6)",
+    "activation": "SwiGLU: (Swish(xW_gate) * xW_up) W_down",
+    "weights_init": "Randomly Initialized (Trained from scratch)",
+    "adaptation_method": "None (Full Pretraining)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Model Definition",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_195m/best.pt",
+    "experiment_id": "arch4_hybrid_gqa_195m (Phase 1 Arch4 v1)",
+    "evidence": "First comprehensive prototype of Arch4 featuring RoPE, SwiGLU, GQA (16q:8kv), and interleaved local-global attention layers. Trains on acts, sc, and tribunal bins."
+  },
+  {
+    "file": "train-arch4-t4-v4-1.ipynb",
+    "architecture": "Arch4 (Hybrid Local-Global GQA Decoder)",
+    "model_classes": "Architecture4, Arch4Block, GQAAttention, SwiGLU, RotaryEmbedding, Trunk, Loader",
+    "params": "201,443,328 (201.44M)",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads (head_dim=64)",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Hybrid Local-Global Grouped-Query Attention (GQA)",
+    "pos_encoding": "Rotary Position Embeddings (RoPE)",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Randomly Initialized (Trained from scratch on T4 GPU)",
+    "adaptation_method": "None (Full Pretraining)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Training",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "best.pt, latest.pt (published as arch4_hybrid_gqa_201m/best.pt)",
+    "experiment_id": "train-arch4-t4-v4-1 (Primary 10,000-step Foundation Run)",
+    "evidence": "Primary training script of CS781. Consumed exactly 10,000 steps at 16,384 tokens/step (163.84M tokens). Produced the definitive 201.44M checkpoint that serves as the foundation backbone for all downstream phases."
+  },
+  {
+    "file": "arch4ka2part.ipynb",
+    "architecture": "Arch4 (Hybrid Local-Global GQA Decoder)",
+    "model_classes": "Architecture4, Arch4Block, GQAAttention, SwiGLU, RotaryEmbedding",
+    "params": "195M - 201.44M",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Hybrid Local-Global GQA",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained / Resumed from checkpoint",
+    "adaptation_method": "None (Pretraining Continuation)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Training",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_195m/best.pt, last_model.pt",
+    "experiment_id": "arch4ka2part (Checkpoint continuation)",
+    "evidence": "Continuation and second stage pretraining session for Arch4. Validates loss progression down to 2.8832."
+  },
+  {
+    "file": "arch4-1-gen.ipynb",
+    "architecture": "Arch4 (Hybrid Local-Global GQA Decoder)",
+    "model_classes": "Architecture4, Arch4Block, GQAAttention, SwiGLU, RotaryEmbedding",
+    "params": "195,000,000 (~195M)",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Hybrid Local-Global GQA",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Loads arch4_hybrid_gqa_195m_resume/best_model.pt)",
+    "adaptation_method": "None (Inference / Generation)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Inference",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_195m_resume/best_model.pt",
+    "experiment_id": "Arch4-1 Generation Run",
+    "evidence": "Inference and prompt continuation using the 195M checkpoint. Generates candidate submissions on test prompts."
+  },
+  {
+    "file": "train-arch4-t4-v4-1_genarate arch.ipynb",
+    "architecture": "Arch4 (Hybrid Local-Global GQA Decoder)",
+    "model_classes": "Architecture4, Arch4Block, GQAAttention, SwiGLU, RotaryEmbedding",
+    "params": "201,443,328 (201.44M)",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Hybrid Local-Global GQA",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Loads arch4_hybrid_gqa_201m/best.pt)",
+    "adaptation_method": "None (Inference / Generation)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Inference",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_201m/best.pt",
+    "experiment_id": "Submission 960793 (Score: 0.8232), Submission 963120 (Score: 0.8295)",
+    "evidence": "Autoregressive generation pipeline loading the 201.44M best checkpoint. Generates continuations with top-p sampling and exports submission zip."
+  },
+  {
+    "file": "train-arch4-t4-v4-1_genarate arch2.ipynb",
+    "architecture": "Arch4 (Hybrid Local-Global GQA Decoder)",
+    "model_classes": "Architecture4, Arch4Block, GQAAttention, SwiGLU, RotaryEmbedding, FastGen, NGramBan, State, Tok",
+    "params": "201,443,328 (201.44M)",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Hybrid Local-Global GQA with KV-cache",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Loads arch4_hybrid_gqa_201m/best.pt)",
+    "adaptation_method": "None (Fast Inference with KV-cache & N-gram Banning)",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Inference",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_201m/best.pt",
+    "experiment_id": "Submission 964323 (Peak BERTScore F1: 0.8322, Rank 1)",
+    "evidence": "Implements fast KV-cache generation engine (FastGen) with dynamic n-gram banning (NGramBan) and repetition penalty theta=1.15. Produced competition-winning Submission 964323."
+  },
+  {
+    "file": "cs781-phase1-data.ipynb",
+    "architecture": "None (Data Preprocessing Pipeline)",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Data Preprocessing",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "acts_train.bin, sc_train.bin, tribunals_train_f.bin",
+    "experiment_id": "Phase 1 Data Ingest & Partitioning",
+    "evidence": "Ingests raw Indian legal acts (18,826 docs), Supreme Court rulings (55,549 docs), and tribunals (869,132 subsampled to 10%). Partitions 98% train / 2% val and cleans text."
+  },
+  {
+    "file": "phase1-tokens-v40k-clean.ipynb",
+    "architecture": "None (BPE Tokenizer & Binary Packing)",
+    "model_classes": "None",
+    "params": "N/A (40,000 Vocab BPE Tokenizer)",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": 40000,
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Data Preprocessing",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "tokenizer.json, acts_train.bin, sc_train.bin, tribunals_train_f.bin",
+    "experiment_id": "Phase 1 40k Byte-Level BPE Packing",
+    "evidence": "Trains 40,000 vocabulary Byte-Level BPE tokenizer on legal corpus and writes 533M tokens into memory-mapped uint16 binary files."
+  },
+  {
+    "file": "phase2\\phase2-arch4-ner.ipynb",
+    "architecture": "Arch4 (Hybrid Local-Global GQA Decoder) + NER Token Head",
+    "model_classes": "Architecture4, Arch4Block, GQAAttention, SwiGLU, RotaryEmbedding, TokenClassificationHead",
+    "params": "201.44M Backbone + 25-way Linear Head",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Hybrid Local-Global GQA",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Loads arch4_hybrid_gqa_201m/best.pt)",
+    "adaptation_method": "LoRA (r=16, alpha=32) + Linear BIO Head",
+    "suggested_phase": "Phase 2 \u2013 Legal NER",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "best_strict_macro_f1.pt, best_lorma_strict_macro_f1.pt, train_windows.pt, validation_windows.pt",
+    "experiment_id": "Submission 978703 (Peak Strict Macro-F1: 0.5429, Rank 1)",
+    "evidence": "Loads Arch4 201M backbone, adds token-level BIO head (25 logits for 12 classes), trains with sliding windows (1024 context, 128 stride), uses correct_offsets() to strip leading whitespace. Best score: 0.5429."
+  },
+  {
+    "file": "phase2\\full-fine-tuning-for-phase-2-legal-ner-architect.ipynb",
+    "architecture": "Arch4 (Hybrid Local-Global GQA Decoder) / Multi-Backbone Comparison",
+    "model_classes": "NERBackbone, Arch4, Block, Attn, FFN, WinDS, NER",
+    "params": "201.44M Backbone",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "GQA / Local-Global",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Loads Phase 1 checkpoints)",
+    "adaptation_method": "Full Fine-Tuning vs. LoRA vs. Knowledge Distillation",
+    "suggested_phase": "Phase 2 \u2013 Legal NER",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_f0_best_lr2e5.pt, arch4_lora_f0_best.pt",
+    "experiment_id": "Phase 2 Full Fine-Tuning Ablation (lr=2e-5)",
+    "evidence": "Explores full backbone fine-tuning versus parameter-efficient LoRA across cross-validation folds. Tracks strict span Macro-F1 and oracle token alignment ceiling."
+  },
+  {
+    "file": "phase2\\phase2-experiments.ipynb",
+    "architecture": "Arch1, Arch2, Arch3, Arch4 Comparative Backbones",
+    "model_classes": "LegalDecoderLM, TransformerModelPreLN, Architecture4",
+    "params": "88.2M (Arch1), 160.7M (Arch2), 242.5M (Arch3), 201.4M (Arch4)",
+    "layers": "8 (Arch1), 12 (Arch2), 16 (Arch3), 12 (Arch4)",
+    "heads": "8, 8, 16, 16",
+    "hidden_dim": "768, 768, 1024, 1024",
+    "ffn_dim": "3072, 3072, 4096, 3328",
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "MHA, Cross-Attn, SWA, GQA",
+    "pos_encoding": "Learned Absolute & RoPE",
+    "norm_type": "Pre-LN & Pre-RMSNorm",
+    "activation": "GELU & SwiGLU",
+    "weights_init": "Pretrained (Loads Phase 1 checkpoints for Arch 1, 2, 3, 4)",
+    "adaptation_method": "LoRA, BitFit, LORMA Comparative Evaluation",
+    "suggested_phase": "Phase 2 \u2013 Legal NER",
+    "suggested_role": "Evaluation",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "phase2_arch4_baseline/best_strict_macro_f1.pt, phase2_arch4_lorma/best_lorma_strict_macro_f1.pt",
+    "experiment_id": "Phase 2 Exploration Lab & Backbone Benchmark",
+    "evidence": "Benchmarking harness comparing all four Phase-1 foundation backbones adapted for Legal NER with LoRA, BitFit, and LORMA."
+  },
+  {
+    "file": "phase2\\phase2-experiments2.ipynb",
+    "architecture": "Arch4 (Hybrid GQA) + Knowledge Distillation Student (6-layer)",
+    "model_classes": "HoulsbyAfterLinear, StudentLoRALinear, Architecture4, Arch4Block",
+    "params": "201.44M (Teacher), ~104M (6-layer Student)",
+    "layers": "12 layers (Teacher), 6 layers (Student)",
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "GQA with Teacher-Student Distillation",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Teacher loaded from Phase 1 Arch4)",
+    "adaptation_method": "Teacher-Student Knowledge Distillation (KD) + Houlsby Adapter",
+    "suggested_phase": "Phase 2 \u2013 Legal NER",
+    "suggested_role": "Training",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "best_strict_macro_f1.pt, best_trainable.pt, source_checkpoint.pt",
+    "experiment_id": "Phase 2 Knowledge Distillation (Submissions 976907, 977156, 978669)",
+    "evidence": "Implements structured knowledge distillation distilling 12-layer Arch4 teacher into a 6-layer student preserving interleaved local-global attention topology."
+  },
+  {
+    "file": "phase3\\arch-4-phase-3-rhetorical-role-prediction.ipynb",
+    "architecture": "Arch4 (Hybrid GQA) + Hierarchical Context Classifier",
+    "model_classes": "Architecture4, Arch4Block, Arch4Attention, Arch4FFN, SentenceClassifier, ContextSentenceClassifier, RotaryEmbedding",
+    "params": "201.44M Backbone + Context MLP Head",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 256,
+    "attention_mech": "Hybrid Local-Global GQA",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Loads Phase 1 Arch4 201M checkpoint)",
+    "adaptation_method": "LoRA (r=8, alpha=16) + Inter-sentence Contextual Gating Head",
+    "suggested_phase": "Phase 3 \u2013 Rhetorical Role Prediction",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "07_arch4_finetune_lr1e4/classifier_best.pt, 06_arch4_gated_context/gated_context_classifier_best.pt",
+    "experiment_id": "Phase 3 Arch4 Context Run (Macro-F1 ~0.4679)",
+    "evidence": "Transfers Arch4 backbone to rhetorical role prediction. Evaluates sentence pooling and hierarchical inter-sentence conditioning s_{t-1} -> s_t for 13 discourse roles."
+  },
+  {
+    "file": "phase3\\kaggle-phase3-data.ipynb",
+    "architecture": "Arch1 (Causal Decoder) + LoRA & Context Head",
+    "model_classes": "Arch1, TransformerBlock, CausalSelfAttention, MLP, RhetoricalRoleDataset",
+    "params": "88.2M Backbone + 0.21M LoRA Head (88.42M total)",
+    "layers": 8,
+    "heads": 8,
+    "hidden_dim": 768,
+    "ffn_dim": 3072,
+    "vocab_size": 40000,
+    "seq_len": 256,
+    "attention_mech": "MHA with LoRA adapters injected into Q/V",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN",
+    "activation": "GELU",
+    "weights_init": "Pretrained (Loads Phase 1 Arch1 run_arch1_real/best.pt)",
+    "adaptation_method": "LoRA (r=8, alpha=16) + Joint Domain Training & Focal Loss",
+    "suggested_phase": "Phase 3 \u2013 Rhetorical Role Prediction",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "best_arch1_lora_rr.pt, best_arch1_context.pt",
+    "experiment_id": "Submission 994294 (Peak Macro-F1: 0.4807, Rank 1)",
+    "evidence": "Trains Arch1 with LoRA (r=8) and contextual sentence modeling on combined Corporate Law (CL) and Income Tax (IT) datasets. Achieved competition-winning Macro-F1 of 0.4807."
+  },
+  {
+    "file": "phase4\\p4-experiment-1-arch4-201m-compulsory-lorma.ipynb",
+    "architecture": "Arch4 (201M GQA) + Compulsory LORMA Hierarchical Net",
+    "model_classes": "Arch4HierarchicalLoRMANet, Arch4FastExtractor, LoRMALinear, Arch4Block, Arch4Attention, Arch4FFN, RotaryEmbedding",
+    "params": "201.44M Backbone + LORMA Adaptations",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 2048,
+    "attention_mech": "Hybrid Local-Global GQA",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Loads Phase 1 Arch4 201M checkpoint)",
+    "adaptation_method": "Compulsory LORMA (Low-Rank Multiplicative Adaptation y = (I + (alpha/r)BA)W_0 x)",
+    "suggested_phase": "Phase 4 \u2013 Court Judgment Prediction",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_201m/best.pt",
+    "experiment_id": "Phase 4 Experiment 1 (Arch4 + LORMA, Macro-F1: 0.6935)",
+    "evidence": "Implements mandatory LORMA multiplicative adapter on Arch4 201M backbone for Court Judgment Prediction across 4 document zones."
+  },
+  {
+    "file": "phase4\\p4-ex-3-arch2-bitfit-layer-wise-partial.ipynb",
+    "architecture": "Arch2 (Pre-LN Encoder-Decoder) + BitFit & Lexical Blend",
+    "model_classes": "TransformerModelPreLN, TransformerEncoderPreLN, MultiHeadAttention, FeedForward",
+    "params": "160.68M Backbone + 0.32M Trainable Biases & Head",
+    "layers": "6 Encoder Layers",
+    "heads": 8,
+    "hidden_dim": 768,
+    "ffn_dim": 3072,
+    "vocab_size": 40000,
+    "seq_len": 2048,
+    "attention_mech": "Encoder Self-Attention across 4 zones (Head, Mid1, Mid2, Tail)",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN",
+    "activation": "GELU",
+    "weights_init": "Pretrained (Loads Phase 1 Arch2 run_arch2_preln_efficient/best.pt)",
+    "adaptation_method": "BitFit (Bias-term fine-tuning) with layer-wise partial unfreezing + Ridge/LogReg Ensembling",
+    "suggested_phase": "Phase 4 \u2013 Court Judgment Prediction",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "run_arch2_preln_efficient/best.pt, best_model.pt",
+    "experiment_id": "Submission 1009979 (Peak Macro-F1: 0.7106, Rank 1)",
+    "evidence": "Extracts 4-zone document embeddings using Arch2 encoder adapted with BitFit and layer-wise unfreezing, blended with lexical n-gram Tail classifiers (0.40 neural + 0.60 lexical). Achieved winning Macro-F1: 0.7106."
+  },
+  {
+    "file": "phase4\\exp2-arch3-adalora.ipynb",
+    "architecture": "Arch3 (242M Sliding Window Attention) + AdaLoRA",
+    "model_classes": "LegalDecoderLM, SlidingWindowCausalSelfAttention, TransformerBlock, EnhancedCJPEZoneClassifier",
+    "params": "242.5M Backbone + AdaLoRA Adapters",
+    "layers": 16,
+    "heads": 16,
+    "hidden_dim": 1024,
+    "ffn_dim": 4096,
+    "vocab_size": 40000,
+    "seq_len": 2048,
+    "attention_mech": "Sliding-Window Attention with Cross-Zone Attention Pooling",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN",
+    "activation": "GELU",
+    "weights_init": "Pretrained (Loads Phase 1 Arch3 run_arch3_swa_v2/best.pt)",
+    "adaptation_method": "AdaLoRA (Adaptive Low-Rank SVD-based Adaptation)",
+    "suggested_phase": "Phase 4 \u2013 Court Judgment Prediction",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "run_arch3_swa_v2/best.pt, classifier_head.pt",
+    "experiment_id": "Phase 4 Experiment 2 (Arch3 + AdaLoRA, Macro-F1: 0.7027)",
+    "evidence": "Implements AdaLoRA on 16-layer Arch3 backbone. Learns attention weights over Head (68.4%), Mid-1 (11.9%), Mid-2 (9.7%), and Tail (9.9%) zones."
+  },
+  {
+    "file": "phase4\\phase-4-exp-2-2-arch3-adalora-full-corpus.ipynb",
+    "architecture": "Arch3 (242M SWA) + AdaLoRA Full Corpus Scaling",
+    "model_classes": "EnhancedCJPEZoneClassifier, ClassBalancedFocalLoss, LegalDecoderLM",
+    "params": "242.5M Backbone",
+    "layers": 16,
+    "heads": 16,
+    "hidden_dim": 1024,
+    "ffn_dim": 4096,
+    "vocab_size": 40000,
+    "seq_len": 2048,
+    "attention_mech": "Sliding Window Attention",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN",
+    "activation": "GELU",
+    "weights_init": "Pretrained (Loads run_arch3_swa_v2/best.pt)",
+    "adaptation_method": "AdaLoRA trained on full corpus (train + dev = 39,375 cases) with Focal Loss",
+    "suggested_phase": "Phase 4 \u2013 Court Judgment Prediction",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "classifier_head.pt, final_norm.pt",
+    "experiment_id": "Submission 1008332 (Macro-F1: 0.7053)",
+    "evidence": "Scales AdaLoRA fine-tuning of Arch3 to the complete 39,375 training set with class-balanced focal loss to optimize minority class discovery."
+  },
+  {
+    "file": "phase4\\notebook1fa8d9d541.ipynb",
+    "architecture": "Arch3 (242M SWA) + AdaLoRA Full Corpus Inference",
+    "model_classes": "EnhancedCJPEZoneClassifier, LegalDecoderLM",
+    "params": "242.5M Backbone",
+    "layers": 16,
+    "heads": 16,
+    "hidden_dim": 1024,
+    "ffn_dim": 4096,
+    "vocab_size": 40000,
+    "seq_len": 2048,
+    "attention_mech": "Sliding Window Attention",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN",
+    "activation": "GELU",
+    "weights_init": "Pretrained (Loads AdaLoRA adapter from Exp2_Arch3_AdaLoRA_Improved)",
+    "adaptation_method": "AdaLoRA Inference / Packaging",
+    "suggested_phase": "Phase 4 \u2013 Court Judgment Prediction",
+    "suggested_role": "Inference",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "Exp2_Arch3_AdaLoRA_Improved/adalora_adapter",
+    "experiment_id": "Submission 1008459 (Macro-F1: 0.7027)",
+    "evidence": "Generates test predictions for 1,517 unannotated test judgments using cached zone features and AdaLoRA weights."
+  },
+  {
+    "file": "phase4\\phase4-kd.ipynb",
+    "architecture": "Teacher: Arch3 (AdaLoRA 242M) -> Student: Arch1 (Distilled 88M)",
+    "model_classes": "Arch3AdaLoRATeacherNet, Arch1DistilledStudentNet, AdaLoRALinear",
+    "params": "242.5M Teacher, 88.2M Student",
+    "layers": "16 (Teacher) -> 8 (Student)",
+    "heads": "16 -> 8",
+    "hidden_dim": "1024 -> 768",
+    "ffn_dim": "4096 -> 3072",
+    "vocab_size": 40000,
+    "seq_len": 2048,
+    "attention_mech": "Sliding Window (Teacher) vs Causal MHA (Student)",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN",
+    "activation": "GELU",
+    "weights_init": "Pretrained (Loads Arch3 and Arch1 checkpoints)",
+    "adaptation_method": "Knowledge Distillation (KL divergence on soft logits + cross-entropy)",
+    "suggested_phase": "Phase 4 \u2013 Court Judgment Prediction",
+    "suggested_role": "Training",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch3-model/run_arch3_swa_v2/best.pt, run_arch1_real/best.pt",
+    "experiment_id": "Phase 4 Knowledge Distillation Ablation",
+    "evidence": "Distills predictions of 242.5M Arch3 AdaLoRA teacher into lightweight 88.2M Arch1 student for low-latency court judgment inference."
+  },
+  {
+    "file": "phase5\\phase5.ipynb",
+    "architecture": "Arch4 (201M GQA) + Dual-View Multi-Label Classifier & Threshold Calibration",
+    "model_classes": "DualViewLSIDataset, Arch4Layer, Arch4Model, RotaryEmbedding, LORMALinear",
+    "params": "201.44M Backbone + 49.50M Multi-Label Head",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Hybrid Local-Global GQA",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Loads Phase 1 Arch4 201M checkpoint)",
+    "adaptation_method": "Multi-Label LORMA + Per-Statute Threshold Calibration (tau_k in [0.1, 0.6])",
+    "suggested_phase": "Phase 5 \u2013 Legal Statute Identification",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_201m/best.pt, arch1-modeldecoder/best.pt, arch2-model/best.pt, arch3-model/best.pt",
+    "experiment_id": "Submission 1043558 (Peak Macro-F1: 0.3392, Rank 1)",
+    "evidence": "Implements dual-view encoding (first 512 + last 512 tokens), 100-way multi-label classification head, and per-class threshold calibration on 10,181 dev judgments to counter 43:1 head-tail statute imbalance. Macro-F1: 0.3392."
+  },
+  {
+    "file": "phase6\\phase6.ipynb",
+    "architecture": "Arch2 (160M Encoder-Decoder) & Arch4 (201M Decoder) Comparative Suite",
+    "model_classes": "Arch1Model, Arch2EncoderLayer, Arch2DecoderLayer, Arch3Model, Arch4Model, LORMALinear, RotaryEmbedding",
+    "params": "160.68M (Arch2) / 201.44M (Arch4)",
+    "layers": "6+6 (Arch2) / 12 (Arch4)",
+    "heads": "8 (Arch2) / 16:8 (Arch4)",
+    "hidden_dim": "768 (Arch2) / 1024 (Arch4)",
+    "ffn_dim": "3072 / 3328",
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Encoder-Decoder Cross Attention vs GQA Decoder",
+    "pos_encoding": "Learned Absolute & RoPE",
+    "norm_type": "Pre-LN & Pre-RMSNorm",
+    "activation": "GELU & SwiGLU",
+    "weights_init": "Pretrained (Loads Phase 1 checkpoints for all architectures)",
+    "adaptation_method": "Houlsby Bottleneck Adapters & Compulsory LORMA",
+    "suggested_phase": "Phase 6 \u2013 Abstractive Summarization",
+    "suggested_role": "Evaluation",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_201m/best.pt, arch2-model/best.pt, arch3-model/best.pt, arch1-modeldecoder/best.pt",
+    "experiment_id": "Phase 6 Comparative Evaluation Lab",
+    "evidence": "Comprehensive summarization comparison across architectures and adaptation techniques. Evaluates salient chunk-and-merge encoding and beam search."
+  },
+  {
+    "file": "phase6\\phase6-2.ipynb",
+    "architecture": "Arch2 (Pre-LN Encoder-Decoder) + Houlsby Bottleneck Adapters",
+    "model_classes": "Arch2Encoder, Arch2Decoder, Arch2EncoderLayer, Arch2DecoderLayer, LoRALinear, PfeifferAdapterLinear, Phase1Tokenizer",
+    "params": "160.68M Backbone + 2.28M Adapters",
+    "layers": "6 Encoder + 6 Decoder",
+    "heads": 8,
+    "hidden_dim": 768,
+    "ffn_dim": 3072,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Encoder-Decoder Cross-Attention with Bottleneck Adapters",
+    "pos_encoding": "Learned Absolute Positional Embeddings",
+    "norm_type": "Pre-LN",
+    "activation": "GELU",
+    "weights_init": "Pretrained (Loads run_arch2_preln_efficient/best.pt)",
+    "adaptation_method": "Houlsby Bottleneck Adapters (r=16) + Length-Penalized Beam Search",
+    "suggested_phase": "Phase 6 \u2013 Abstractive Summarization",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "run_arch2_preln_efficient/best.pt, checkpoints/exp_name.pt",
+    "experiment_id": "Submission 1030574 (Peak BERTScore F1: 0.8389, Rank 1)",
+    "evidence": "Implements fine-tuning of Arch2 Seq2Seq model with Houlsby adapters for abstractive summarization. Achieved competition-winning BERTScore F1 of 0.8389 with beam search (beam=4, len_pen=1.0)."
+  },
+  {
+    "file": "phase6\\phase6-3.ipynb",
+    "architecture": "Arch4 (201M GQA) + Compulsory LORMA Continuation",
+    "model_classes": "Arch4HybridGQAModel, Arch4Layer, Arch4GQAAttention, Arch4GatedFFN, LORMALinear, RotaryEmbedding, Phase1Tokenizer, ProDataset",
+    "params": "201.44M Backbone + LORMA Adapters",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "Hybrid Local-Global GQA",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Loads Arch4 201M checkpoint)",
+    "adaptation_method": "Compulsory LORMA (rank=32, alpha=64)",
+    "suggested_phase": "Phase 6 \u2013 Abstractive Summarization",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_201m/best.pt",
+    "experiment_id": "Submission 1029803 (Score: 0.8343), Submission 1029788 (Score: 0.8343)",
+    "evidence": "Decoder-only summarization pipeline adapting Arch4 201M with compulsory LORMA for prompt-conditioned summary generation."
+  },
+  {
+    "file": "phase7\\phase7-start.ipynb",
+    "architecture": "Arch4 Bi-Encoder + Arch1 Distilled Student + BM25/Graph Diffusion",
+    "model_classes": "Phase1BiEncoder, UniversalBiEncoder, LegalRetrievalPooler, LORMALinear, IA3Linear, RotaryEmbedding, FastQueryContrastiveDataset",
+    "params": "201.44M Backbone + 4.18M LORMA/IA3 Adapters",
+    "layers": 12,
+    "heads": "16 Query Heads, 8 KV Heads",
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 512,
+    "attention_mech": "Symmetric Bi-Encoder Tower (Arch4/Arch1) with mean pooling & L2 normalization",
+    "pos_encoding": "RoPE / Learned Absolute",
+    "norm_type": "Pre-RMSNorm / Pre-LN",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained (Loads Arch4 and Arch1 checkpoints)",
+    "adaptation_method": "Compulsory LORMA + Multiple Negative Ranking Loss + 2-Hop Graph Diffusion",
+    "suggested_phase": "Phase 7 \u2013 Prior Case Retrieval",
+    "suggested_role": "Fine-tuning",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_201m/best.pt, run_arch1_real/best.pt",
+    "experiment_id": "Submission 1038781 (Peak Micro-F1@7: 0.3627, Rank 1)",
+    "evidence": "Bi-encoder dense representation trained with in-batch negatives, ensembled with sparse BM25, statutory section regex matchers, and 2-hop reciprocal citation graph diffusion. Micro-F1@7: 0.3627."
+  },
+  {
+    "file": "report.tex",
+    "architecture": "Shared / Multiple Architectures (Arch1, Arch2, Arch3, Arch4)",
+    "model_classes": "All implemented architectures formally documented",
+    "params": "88.2M, 160.7M, 242.5M, 201.4M",
+    "layers": "8, 12, 16, 12",
+    "heads": "8, 8, 16, 16",
+    "hidden_dim": "768, 768, 1024, 1024",
+    "ffn_dim": "3072, 3072, 4096, 3328",
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "MHA, Encoder-Decoder Cross Attention, SWA, Hybrid Local-Global GQA",
+    "pos_encoding": "Learned Absolute, Sinusoidal, RoPE",
+    "norm_type": "Pre-LN, Post-LN, Pre-RMSNorm",
+    "activation": "GELU, SwiGLU",
+    "weights_init": "Scratch Pretraining & PEFT Transfer",
+    "adaptation_method": "LoRA, AdaLoRA, BitFit, LORMA, Houlsby, Knowledge Distillation",
+    "suggested_phase": "Shared / Multiple Phases",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "All project checkpoints documented",
+    "experiment_id": "Comprehensive Capstone Final Report (Sections 1--7)",
+    "evidence": "Primary LaTeX source of the CS781 Capstone Report documenting mathematical specifications, training recipes, hyperparameters, ablations, and competition results across all 7 phases."
+  },
+  {
+    "file": "Capstone Document.docx",
+    "architecture": "Shared / Multiple Architectures",
+    "model_classes": "Course Specification",
+    "params": "50M - 300M parameter limit specification",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "Mandate: Train strictly from scratch",
+    "adaptation_method": "PEFT Mandate (LoRA, AdaLoRA, BitFit, LORMA, KD)",
+    "suggested_phase": "Shared / Multiple Phases",
+    "suggested_role": "Configuration",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Official Course Capstone Specification",
+    "evidence": "Official CS781 Capstone problem specification defining the 7 phases, 50M-300M parameter limits, data privacy constraints, and evaluation guidelines."
+  },
+  {
+    "file": "Phase_2_and_3_AI_ML_Report.pdf",
+    "architecture": "Arch1, Arch2, Arch3, Arch4",
+    "model_classes": "Report Document",
+    "params": "88.2M, 201.4M",
+    "layers": "8, 12",
+    "heads": "8, 16",
+    "hidden_dim": "768, 1024",
+    "ffn_dim": "3072, 3328",
+    "vocab_size": 40000,
+    "seq_len": "1024 / 256",
+    "attention_mech": "MHA & GQA",
+    "pos_encoding": "RoPE & Absolute",
+    "norm_type": "Pre-LN & RMSNorm",
+    "activation": "GELU & SwiGLU",
+    "weights_init": "Pretrained Phase 1 Backbones",
+    "adaptation_method": "LoRA, LORMA, Knowledge Distillation",
+    "suggested_phase": "Shared / Multiple Phases",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_201m/best.pt, run_arch1_real/best.pt",
+    "experiment_id": "Phase 2 & Phase 3 Milestone Report",
+    "evidence": "Formal milestone PDF report covering Phase 2 (Legal NER) and Phase 3 (Rhetorical Role Prediction) methodologies and results."
+  },
+  {
+    "file": "phase567.pdf",
+    "architecture": "Arch2, Arch3, Arch4",
+    "model_classes": "Report Document",
+    "params": "160.7M, 201.4M",
+    "layers": "6+6, 12",
+    "heads": "8, 16",
+    "hidden_dim": "768, 1024",
+    "ffn_dim": "3072, 3328",
+    "vocab_size": 40000,
+    "seq_len": "1024 / 512",
+    "attention_mech": "Cross Attention & GQA",
+    "pos_encoding": "RoPE & Absolute",
+    "norm_type": "Pre-LN & RMSNorm",
+    "activation": "GELU & SwiGLU",
+    "weights_init": "Pretrained Phase 1 Backbones",
+    "adaptation_method": "LORMA, Houlsby, Multi-Label Calibration, Bi-Encoder",
+    "suggested_phase": "Shared / Multiple Phases",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_201m/best.pt, run_arch2_preln_efficient/best.pt",
+    "experiment_id": "Phase 5, 6, 7 Milestone Report",
+    "evidence": "Formal milestone PDF report covering Phase 5 (Statute Identification), Phase 6 (Summarization), and Phase 7 (Prior Case Retrieval)."
+  },
+  {
+    "file": "codabench_all_77_submissions.csv",
+    "architecture": "Shared / Multiple Architectures",
+    "model_classes": "Tabular Competition Log",
+    "params": "All evaluated model checkpoints",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Shared / Multiple Phases",
+    "suggested_role": "Evaluation",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "All competition submission artifacts",
+    "experiment_id": "All 77 Official Codabench Submissions (P1: 6, P2: 13, P3: 26, P4: 11, P5: 6, P6: 8, P7: 7)",
+    "evidence": "Complete dump of all 77 submissions evaluated on Codabench with Submission IDs, timestamps, scores, primary metrics, and leaderboard ranks."
+  },
+  {
+    "file": "codabench phase1.png",
+    "architecture": "Arch4 (Hybrid Local-Global GQA Decoder)",
+    "model_classes": "Leaderboard Screenshot",
+    "params": "201.44M",
+    "layers": 12,
+    "heads": 16,
+    "hidden_dim": 1024,
+    "ffn_dim": 3328,
+    "vocab_size": 40000,
+    "seq_len": 1024,
+    "attention_mech": "GQA",
+    "pos_encoding": "RoPE",
+    "norm_type": "Pre-RMSNorm",
+    "activation": "SwiGLU",
+    "weights_init": "Pretrained",
+    "adaptation_method": "FastGen Inference",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Evaluation",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "arch4_hybrid_gqa_201m/best.pt",
+    "experiment_id": "Phase 1 Codabench Leaderboard Rank 1",
+    "evidence": "Visual confirmation of the Codabench Phase 1 leaderboard displaying Submission 964323 achieving BERTScore F1 0.8322."
+  },
+  {
+    "file": "desktop.ini",
+    "architecture": "None",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Unassigned",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "N/A",
+    "evidence": "Windows desktop folder configuration metadata file. Unrelated to model architecture or training."
+  },
+  {
+    "file": "section3_audit\\plot_data.py",
+    "architecture": "None (Audit Visualization Script)",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Shared / Multiple Phases",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Audit Visualization Suite",
+    "evidence": "Python script generating 6 publication figures for Section 3 of the capstone report from audited CSV metrics."
+  },
+  {
+    "file": "section3_audit\\section3_evidence_audit.md",
+    "architecture": "Shared / Multiple Architectures",
+    "model_classes": "Audit Document",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Shared / Multiple Phases",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Section 3 Verified Evidence Package",
+    "evidence": "Detailed markdown evidence package tracing every token count, entity span, rhetorical role count, zone weight, statute frequency, and compression ratio across all 32 notebooks."
+  },
+  {
+    "file": "section3_audit\\verification_report.md",
+    "architecture": "Shared / Multiple Architectures",
+    "model_classes": "Audit Document",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Shared / Multiple Phases",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Consistency & Discrepancy Verification Report",
+    "evidence": "Formal verification report cross-referencing values in report.tex against notebook cell outputs and raw data files."
+  },
+  {
+    "file": "section3_audit\\preprocessing_trace.csv",
+    "architecture": "Shared / Multiple Architectures",
+    "model_classes": "Tabular Audit Trace",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Shared / Multiple Phases",
+    "suggested_role": "Data Preprocessing",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Audit Preprocessing Traceability Matrix",
+    "evidence": "Tabular traceability mapping each phase's preprocessing logic to specific notebook files and cell indices."
+  },
+  {
+    "file": "section3_audit\\phase1_corpus_statistics.csv",
+    "architecture": "None (Corpus Statistics)",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Data Preprocessing",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Phase 1 Corpus Stats",
+    "evidence": "Audited token and document counts for Central & State Acts, Supreme Court, Tribunals, and High Court omission."
+  },
+  {
+    "file": "section3_audit\\phase2_ner_statistics.csv",
+    "architecture": "None (NER Class Statistics)",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 2 \u2013 Legal NER",
+    "suggested_role": "Data Preprocessing",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Phase 2 NER Gold Span Stats",
+    "evidence": "Audited entity class counts, boundary alignment successes/failures, and span length percentiles across 8,393 gold spans."
+  },
+  {
+    "file": "section3_audit\\phase3_role_statistics.csv",
+    "architecture": "None (Discourse Role Statistics)",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 3 \u2013 Rhetorical Role Prediction",
+    "suggested_role": "Data Preprocessing",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Phase 3 Discourse Statistics",
+    "evidence": "Audited sentence distributions across 13 rhetorical roles for Corporate Law (CL) and Income Tax (IT) partitions."
+  },
+  {
+    "file": "section3_audit\\phase4_judgment_statistics.csv",
+    "architecture": "None (Judgment Class Statistics)",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 4 \u2013 Court Judgment Prediction",
+    "suggested_role": "Data Preprocessing",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Phase 4 Class & Zone Statistics",
+    "evidence": "Audited class frequencies (Class 0: 58.57%, Class 1: 41.43%) and zone attention weights (Head 68.4%, Tail 9.9%)."
+  },
+  {
+    "file": "section3_audit\\phase5_statute_statistics.csv",
+    "architecture": "None (Statute Frequency Statistics)",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 5 \u2013 Legal Statute Identification",
+    "suggested_role": "Data Preprocessing",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Phase 5 Multi-Label Statistics",
+    "evidence": "Audited label density (mean 3.71 statutes/doc) and 43:1 head-to-tail frequency imbalance across 100 statute IDs."
+  },
+  {
+    "file": "section3_audit\\phase6_summary_statistics.csv",
+    "architecture": "None (Summarization Statistics)",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 6 \u2013 Abstractive Summarization",
+    "suggested_role": "Data Preprocessing",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Phase 6 Length & Compression Stats",
+    "evidence": "Audited word lengths and 4.90x empirical median compression factor between legal judgments and reference summaries."
+  },
+  {
+    "file": "section3_audit\\phase7_retrieval_statistics.csv",
+    "architecture": "None (Retrieval Statistics)",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 7 \u2013 Prior Case Retrieval",
+    "suggested_role": "Data Preprocessing",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Phase 7 Candidate Pool Stats",
+    "evidence": "Audited query sets, candidate precedent pools, citation density, and Micro-F1@7 baseline evaluations."
+  },
+  {
+    "file": "section3_audit\\fig1_phase1_mixture.png",
+    "architecture": "None",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 1 \u2013 Legal LM Pretraining",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Figure 1 (Phase 1 Corpus Mixture)",
+    "evidence": "Publication figure showing Acts vs Supreme Court vs Tribunals empirical token mixture."
+  },
+  {
+    "file": "section3_audit\\fig2_phase2_entity_distribution.png",
+    "architecture": "None",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 2 \u2013 Legal NER",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Figure 2 (Phase 2 Entity Frequencies)",
+    "evidence": "Publication figure showing frequencies and span length distributions across all 12 NER classes."
+  },
+  {
+    "file": "section3_audit\\fig3_phase3_role_distribution.png",
+    "architecture": "None",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 3 \u2013 Rhetorical Role Prediction",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Figure 3 (Phase 3 Discourse Roles)",
+    "evidence": "Publication figure comparing 13 rhetorical role frequencies across Corporate Law and Income Tax."
+  },
+  {
+    "file": "section3_audit\\fig4_phase4_class_and_zones.png",
+    "architecture": "None",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 4 \u2013 Court Judgment Prediction",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Figure 4 (Phase 4 Classes & Zones)",
+    "evidence": "Publication figure showing judgment outcome class balance and 4-zone empirical attention distribution."
+  },
+  {
+    "file": "section3_audit\\fig5_phase5_statute_frequency.png",
+    "architecture": "None",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 5 \u2013 Legal Statute Identification",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Figure 5 (Phase 5 Statute Long-Tail)",
+    "evidence": "Publication figure showing 43:1 head-to-tail imbalance across 100 statute IDs."
+  },
+  {
+    "file": "section3_audit\\fig6_phase6_compression.png",
+    "architecture": "None",
+    "model_classes": "None",
+    "params": "N/A",
+    "layers": "N/A",
+    "heads": "N/A",
+    "hidden_dim": "N/A",
+    "ffn_dim": "N/A",
+    "vocab_size": "N/A",
+    "seq_len": "N/A",
+    "attention_mech": "N/A",
+    "pos_encoding": "N/A",
+    "norm_type": "N/A",
+    "activation": "N/A",
+    "weights_init": "N/A",
+    "adaptation_method": "N/A",
+    "suggested_phase": "Phase 6 \u2013 Abstractive Summarization",
+    "suggested_role": "Other",
+    "verification": "Automatically Detected",
+    "associated_checkpoints": "N/A",
+    "experiment_id": "Figure 6 (Phase 6 Compression Factor)",
+    "evidence": "Publication figure showing source judgment versus reference summary word distributions."
+  }
+];
+
+    let dataset = JSON.parse(JSON.stringify(INITIAL_DATA));
+
+    // Phase options for dropdown
+    const PHASE_OPTIONS = [
+      "Phase 1 – Legal LM Pretraining",
+      "Phase 2 – Legal NER",
+      "Phase 3 – Rhetorical Role Prediction",
+      "Phase 4 – Court Judgment Prediction",
+      "Phase 5 – Legal Statute Identification",
+      "Phase 6 – Abstractive Summarization",
+      "Phase 7 – Prior Case Retrieval",
+      "Shared / Multiple Phases",
+      "Unassigned"
+    ];
+
+    // Role options for dropdown
+    const ROLE_OPTIONS = [
+      "Model Definition",
+      "Training",
+      "Fine-tuning",
+      "Evaluation",
+      "Inference",
+      "Data Preprocessing",
+      "Configuration",
+      "Checkpoint",
+      "Other"
+    ];
+
+    // Verification options for dropdown
+    const VERIFICATION_OPTIONS = [
+      "Automatically Detected",
+      "User Confirmed",
+      "Needs Verification",
+      "Uncertain"
+    ];
+
+    // Architecture badge colors
+    function getArchBadge(arch) {
+      if (arch.includes("Arch4")) return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200">Arch 4</span>`;
+      if (arch.includes("Arch3")) return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200">Arch 3</span>`;
+      if (arch.includes("Arch2")) return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200">Arch 2</span>`;
+      if (arch.includes("Arch1")) return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200">Arch 1</span>`;
+      if (arch.includes("Shared")) return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-cyan-100 text-cyan-800 dark:bg-cyan-900/60 dark:text-cyan-200">Shared</span>`;
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">Auxiliary</span>`;
+    }
+
+    function getVerificationBadgeClass(status) {
+      switch(status) {
+        case "User Confirmed": return "text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800";
+        case "Automatically Detected": return "text-blue-700 bg-blue-50 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800";
+        case "Needs Verification": return "text-amber-700 bg-amber-50 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800";
+        case "Uncertain": return "text-rose-700 bg-rose-50 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800";
+        default: return "text-gray-700 bg-gray-50 border-gray-200";
+      }
+    }
+
+    // Render Table
+    function renderTable() {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const filterArch = document.getElementById("filterArch").value;
+      const filterPhase = document.getElementById("filterPhase").value;
+      const filterRole = document.getElementById("filterRole").value;
+      const filterVerification = document.getElementById("filterVerification").value;
+
+      let visibleCount = 0;
+
+      dataset.forEach((item, index) => {
+        // Filtering
+        if (query) {
+          const match = item.file.toLowerCase().includes(query) ||
+                        item.architecture.toLowerCase().includes(query) ||
+                        item.model_classes.toLowerCase().includes(query) ||
+                        item.experiment_id.toLowerCase().includes(query) ||
+                        item.evidence.toLowerCase().includes(query);
+          if (!match) return;
+        }
+
+        if (filterArch !== "ALL") {
+          if (filterArch === "None" && item.architecture !== "None" && !item.architecture.includes("None")) return;
+          if (filterArch !== "None" && !item.architecture.includes(filterArch)) return;
+        }
+
+        if (filterPhase !== "ALL") {
+          if (!item.suggested_phase.includes(filterPhase)) return;
+        }
+
+        if (filterRole !== "ALL") {
+          if (item.suggested_role !== filterRole) return;
+        }
+
+        if (filterVerification !== "ALL") {
+          if (item.verification !== filterVerification) return;
+        }
+
+        visibleCount++;
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-black/5 dark:hover:bg-white/5 transition-colors";
+
+        // Architecture Column
+        const tdArch = document.createElement("td");
+        tdArch.className = "py-2.5 px-3.5 align-middle";
+        tdArch.innerHTML = `
+          <div class="flex items-center gap-1.5">
+            ${getArchBadge(item.architecture)}
+          </div>
+          <p class="text-[11px] text-[var(--muted-foreground)] mt-0.5 truncate max-w-[170px]" title="${item.architecture}">
+            ${item.architecture}
+          </p>
+        `;
+
+        // Implementation File Column
+        const tdFile = document.createElement("td");
+        tdFile.className = "py-2.5 px-3.5 align-middle";
+        tdFile.innerHTML = `
+          <div class="font-medium text-[var(--foreground)]">${item.file}</div>
+          <div class="text-[11px] text-[var(--muted-foreground)] truncate max-w-xs" title="${item.model_classes}">
+            ${item.model_classes !== "None" ? item.model_classes : item.adaptation_method}
+          </div>
+        `;
+
+        // Phase Dropdown Column
+        const tdPhase = document.createElement("td");
+        tdPhase.className = "py-2.5 px-3.5 align-middle";
+        const selectPhase = document.createElement("select");
+        selectPhase.className = "w-full text-xs py-1.5 px-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] focus:ring-1 focus:ring-blue-500";
+        PHASE_OPTIONS.forEach(opt => {
+          const optEl = document.createElement("option");
+          optEl.value = opt;
+          optEl.textContent = opt;
+          if (item.suggested_phase === opt) optEl.selected = true;
+          selectPhase.appendChild(optEl);
+        });
+        selectPhase.addEventListener("change", (e) => {
+          item.suggested_phase = e.target.value;
+          item.verification = "User Confirmed";
+          updateMetrics();
+          renderTable();
+        });
+        tdPhase.appendChild(selectPhase);
+
+        // Experiment Column
+        const tdExp = document.createElement("td");
+        tdExp.className = "py-2.5 px-3.5 align-middle";
+        tdExp.innerHTML = `
+          <div class="font-mono text-[11px] text-[var(--foreground)] truncate max-w-[180px]" title="${item.experiment_id}">
+            ${item.experiment_id}
+          </div>
+          ${item.params && item.params !== "N/A" ? `<span class="text-[10px] text-gray-500 font-sans">${item.params}</span>` : ""}
+        `;
+
+        // Role Dropdown Column
+        const tdRole = document.createElement("td");
+        tdRole.className = "py-2.5 px-3.5 align-middle";
+        const selectRole = document.createElement("select");
+        selectRole.className = "w-full text-xs py-1.5 px-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] focus:ring-1 focus:ring-blue-500";
+        ROLE_OPTIONS.forEach(opt => {
+          const optEl = document.createElement("option");
+          optEl.value = opt;
+          optEl.textContent = opt;
+          if (item.suggested_role === opt) optEl.selected = true;
+          selectRole.appendChild(optEl);
+        });
+        selectRole.addEventListener("change", (e) => {
+          item.suggested_role = e.target.value;
+          item.verification = "User Confirmed";
+          updateMetrics();
+          renderTable();
+        });
+        tdRole.appendChild(selectRole);
+
+        // Verification Dropdown Column
+        const tdVerif = document.createElement("td");
+        tdVerif.className = "py-2.5 px-3.5 align-middle";
+        const selectVerif = document.createElement("select");
+        selectVerif.className = `w-full text-xs py-1 px-2 rounded-lg border font-medium focus:ring-1 focus:ring-blue-500 ${getVerificationBadgeClass(item.verification)}`;
+        VERIFICATION_OPTIONS.forEach(opt => {
+          const optEl = document.createElement("option");
+          optEl.value = opt;
+          optEl.textContent = opt;
+          if (item.verification === opt) optEl.selected = true;
+          selectVerif.appendChild(optEl);
+        });
+        selectVerif.addEventListener("change", (e) => {
+          item.verification = e.target.value;
+          updateMetrics();
+          renderTable();
+        });
+        tdVerif.appendChild(selectVerif);
+
+        // Inspect Button
+        const tdBtn = document.createElement("td");
+        tdBtn.className = "py-2.5 px-3.5 text-center align-middle";
+        const btnInspect = document.createElement("button");
+        btnInspect.className = "p-1.5 rounded-lg border border-[var(--border)] hover:bg-black/10 dark:hover:bg-white/10 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors";
+        btnInspect.title = "Inspect Evidence & Architecture Specs";
+        btnInspect.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>`;
+        btnInspect.addEventListener("click", () => showModal(item));
+        tdBtn.appendChild(btnInspect);
+
+        tr.appendChild(tdArch);
+        tr.appendChild(tdFile);
+        tr.appendChild(tdPhase);
+        tr.appendChild(tdExp);
+        tr.appendChild(tdRole);
+        tr.appendChild(tdVerif);
+        tr.appendChild(tdBtn);
+
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("displayCount").textContent = visibleCount;
+    }
+
+    // Update KPI Counters
+    function updateMetrics() {
+      const total = dataset.length;
+      const confirmed = dataset.filter(d => d.verification === "User Confirmed").length;
+      document.getElementById("kpiTotalFiles").textContent = total;
+      document.getElementById("kpiConfirmed").textContent = confirmed;
+      const pct = Math.round((confirmed / total) * 100);
+      document.getElementById("kpiConfirmedPct").textContent = `${pct}% verified`;
+    }
+
+    // Show Evidence & Specs Modal
+    function showModal(item) {
+      document.getElementById("modalArchBadge").textContent = item.architecture;
+      document.getElementById("modalFileName").textContent = item.file;
+      document.getElementById("modalPhaseRole").textContent = `${item.suggested_phase} • Role: ${item.suggested_role} • Status: ${item.verification}`;
+      document.getElementById("modalEvidence").textContent = item.evidence;
+      document.getElementById("modalParams").textContent = item.params || "N/A";
+      document.getElementById("modalLayersHeads").textContent = `${item.layers || 'N/A'} layers / ${item.heads || 'N/A'} heads`;
+      document.getElementById("modalDims").textContent = `d_model=${item.hidden_dim || 'N/A'}, ffn=${item.ffn_dim || 'N/A'}`;
+      document.getElementById("modalAttn").textContent = item.attention_mech || "N/A";
+      document.getElementById("modalPosNorm").textContent = `${item.pos_encoding || 'N/A'}, ${item.norm_type || 'N/A'}`;
+      document.getElementById("modalWeightsInit").textContent = item.weights_init || "N/A";
+      document.getElementById("modalClasses").textContent = item.model_classes || "None";
+      document.getElementById("modalAdaptation").textContent = item.adaptation_method || "None";
+      document.getElementById("modalCheckpoints").textContent = item.associated_checkpoints || "None";
+      document.getElementById("modalExperiment").textContent = item.experiment_id || "None";
+
+      document.getElementById("evidenceModal").classList.remove("hidden");
+    }
+
+    // Render Hierarchy Tree View (Section 5)
+    function renderTreeView() {
+      const container = document.getElementById("treeContainer");
+      container.innerHTML = "";
+
+      const archGroups = {
+        "Architecture 4: Hybrid Local-Global GQA (201.44M Foundation)": dataset.filter(d => d.architecture.includes("Arch4")),
+        "Architecture 1: Standard Causal Decoder (88.2M Causal GPT)": dataset.filter(d => d.architecture.includes("Arch1")),
+        "Architecture 2: Pre-LN Encoder-Decoder (160.7M Seq2Seq)": dataset.filter(d => d.architecture.includes("Arch2")),
+        "Architecture 3: Sliding-Window Attention Decoder (242.5M SWA)": dataset.filter(d => d.architecture.includes("Arch3")),
+        "Shared, Milestone & Infrastructure Artifacts": dataset.filter(d => d.architecture.includes("Shared")),
+        "Corpus Data Preprocessing & System Metadata": dataset.filter(d => d.architecture === "None" || d.architecture.includes("None"))
+      };
+
+      for (const [archName, files] of Object.entries(archGroups)) {
+        const card = document.createElement("div");
+        card.className = "bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 shadow-sm space-y-3";
+
+        let rolesHtml = "";
+        const roleOrder = ["Model Definition", "Training", "Fine-tuning", "Evaluation", "Inference", "Data Preprocessing", "Configuration", "Other"];
+
+        roleOrder.forEach(role => {
+          const roleFiles = files.filter(f => f.suggested_role === role);
+          if (roleFiles.length > 0) {
+            rolesHtml += `
+              <div class="text-xs">
+                <span class="font-semibold text-blue-600 dark:text-blue-400">├── ${role} (${roleFiles.length})</span>
+                <ul class="ml-5 mt-1 space-y-1 text-[var(--muted-foreground)]">
+                  ${roleFiles.map(rf => `
+                    <li class="flex items-center justify-between hover:text-[var(--foreground)] py-0.5">
+                      <span class="font-mono">${rf.file}</span>
+                      <span class="text-[11px] px-1.5 py-0.2 rounded bg-black/5 dark:bg-white/5">${rf.suggested_phase.split('–')[0].trim()}</span>
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+            `;
+          }
+        });
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between border-b border-[var(--border)] pb-2.5">
+            <h4 class="text-sm font-bold text-[var(--foreground)]">${archName}</h4>
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-black/5 dark:bg-white/5 text-[var(--foreground)]">${files.length} files</span>
+          </div>
+          <div class="space-y-2 pt-1 font-mono">
+            ${rolesHtml}
+          </div>
+        `;
+        container.appendChild(card);
+      }
+    }
+
+    // Render Phase-wise Inventory View
+    function renderInventoryView() {
+      const container = document.getElementById("phaseCardsContainer");
+      container.innerHTML = "";
+
+      const phases = [
+        {
+          id: "Phase 1",
+          name: "Legal Language Model Pretraining",
+          task: "Autoregressive domain continuation of 512-word prompt into 128-word continuation",
+          winner: "Architecture 4 (201.44M Hybrid GQA Decoder)",
+          score: "0.8322 BERTScore F1 (Submission 964323, Rank 1)",
+          metric: "BERTScore F1",
+          hparams: "12 layers, 1024 dim, 16q/8kv GQA, RoPE, SwiGLU, 10,000 steps on 164M tokens",
+          files: dataset.filter(d => d.suggested_phase.includes("Phase 1"))
+        },
+        {
+          id: "Phase 2",
+          name: "Legal Named Entity Recognition (L-NER)",
+          task: "Exact character offset extraction across 12 legal entity classes",
+          winner: "Arch 4 Backbone + Linear BIO Token Head + LoRA (r=16)",
+          score: "0.5429 Strict Macro-F1 (Submission 978703, Rank 1)",
+          metric: "Strict Macro-F1",
+          hparams: "LoRA r=16, alpha=32, 25-way token head, correct_offsets() whitespace stripping",
+          files: dataset.filter(d => d.suggested_phase.includes("Phase 2"))
+        },
+        {
+          id: "Phase 3",
+          name: "Rhetorical Role Prediction",
+          task: "Discourse classification of judicial sentences into 13 roles across CL and IT",
+          winner: "Arch 1 Backbone (88.4M) + LoRA (r=8) + Hierarchical Context Classifier",
+          score: "0.4807 Macro-F1 (Submission 994294, Rank 1)",
+          metric: "Macro-F1",
+          hparams: "Contextual sentence link s_{t-1} -> s_t, joint CL+IT training, focal loss gamma=2.0",
+          files: dataset.filter(d => d.suggested_phase.includes("Phase 3"))
+        },
+        {
+          id: "Phase 4",
+          name: "Court Judgment Prediction (CJPE)",
+          task: "Binary appeal prediction (Dismissed=0 vs Allowed=1) on long filings",
+          winner: "Arch 2 (160.7M) + BitFit Partial Layer Unfreezing + Lexical Tail Ensemble",
+          score: "0.7106 Macro-F1 (Submission 1009979, Rank 1)",
+          metric: "Macro-F1",
+          hparams: "4-Zone document slicing (Head, Mid1, Mid2, Tail), BitFit bias tuning, 0.40 neural + 0.60 lexical blend",
+          files: dataset.filter(d => d.suggested_phase.includes("Phase 4"))
+        },
+        {
+          id: "Phase 5",
+          name: "Legal Statute Identification (LSI)",
+          task: "Multi-label classification of 100 statute IDs with 43:1 head-to-tail imbalance",
+          winner: "Arch 4 Backbone (201.44M) + Multi-Label LORMA + Calibrated Thresholds",
+          score: "0.3392 Macro-F1 (Submission 1043558, Rank 1)",
+          metric: "Macro-F1",
+          hparams: "Dual-view encoding (first 512 + last 512), per-statute calibrated thresholds in [0.10, 0.60]",
+          files: dataset.filter(d => d.suggested_phase.includes("Phase 5"))
+        },
+        {
+          id: "Phase 6",
+          name: "Legal Abstractive Summarization",
+          task: "Compressing multi-thousand-word rulings into ~638-word summaries (4.90x compression)",
+          winner: "Arch 2 Pre-LN Seq2Seq (160.7M) + Houlsby Bottleneck Adapters",
+          score: "0.8389 BERTScore F1 (Submission 1030574, Rank 1)",
+          metric: "BERTScore F1",
+          hparams: "Houlsby adapters r=16, salient chunk-and-merge cross-attention, length-penalized beam search",
+          files: dataset.filter(d => d.suggested_phase.includes("Phase 6"))
+        },
+        {
+          id: "Phase 7",
+          name: "Prior Case Retrieval (PCR)",
+          task: "Identifying and ranking binding precedent cases from candidate pools",
+          winner: "Arch 4 Bi-Encoder + Arch 1 Distilled Student + BM25 + 2-Hop Graph Diffusion",
+          score: "0.3627 Micro-F1@7 (Submission 1038781, Rank 1)",
+          metric: "Micro-F1@7",
+          hparams: "Symmetric bi-encoder, multiple negative ranking loss, sparse BM25 fusion, 2-hop graph diffusion",
+          files: dataset.filter(d => d.suggested_phase.includes("Phase 7"))
+        }
+      ];
+
+      phases.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "border border-[var(--border)] rounded-xl p-5 bg-black/5 dark:bg-white/5 space-y-3";
+        card.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border)] pb-2.5">
+            <div>
+              <span class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">${p.id}</span>
+              <h4 class="text-base font-bold text-[var(--foreground)]">${p.name}</h4>
+              <p class="text-xs text-[var(--muted-foreground)]">${p.task}</p>
+            </div>
+            <div class="text-right">
+              <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                Peak Score: ${p.score}
+              </span>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div>
+              <p class="font-semibold text-[var(--foreground)]">Winning Architecture & Technique:</p>
+              <p class="text-[var(--muted-foreground)] mt-0.5">${p.winner}</p>
+              <p class="text-[11px] text-gray-500 mt-1">${p.hparams}</p>
+            </div>
+            <div>
+              <p class="font-semibold text-[var(--foreground)]">Associated Files (${p.files.length}):</p>
+              <div class="flex flex-wrap gap-1.5 mt-1">
+                ${p.files.map(f => `<span class="px-2 py-0.5 rounded bg-[var(--card)] border border-[var(--border)] font-mono text-[11px]">${f.file}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Export Updated Table to CSV
+    function exportToCSV() {
+      const headers = ["Architecture", "Implementation File", "Phase", "Experiment", "Role", "Verification", "Model Classes", "Parameters", "Evidence"];
+      const rows = dataset.map(item => [
+        `"${item.architecture.replace(/"/g, '""')}"`,
+        `"${item.file.replace(/"/g, '""')}"`,
+        `"${item.suggested_phase.replace(/"/g, '""')}"`,
+        `"${item.experiment_id.replace(/"/g, '""')}"`,
+        `"${item.suggested_role.replace(/"/g, '""')}"`,
+        `"${item.verification.replace(/"/g, '""')}"`,
+        `"${item.model_classes.replace(/"/g, '""')}"`,
+        `"${(item.params || '').replace(/"/g, '""')}"`,
+        `"${item.evidence.replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "architecture_to_file_mapping.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Export Updated Table to JSON
+    function exportToJSON() {
+      const jsonContent = JSON.stringify(dataset, null, 2);
+      const blob = new Blob([jsonContent], { type: "application/json;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "architecture_to_file_mapping.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Initialize Event Listeners
+    document.addEventListener("DOMContentLoaded", () => {
+      renderTable();
+      updateMetrics();
+
+      // Search & Filters
+      document.getElementById("searchInput").addEventListener("input", renderTable);
+      document.getElementById("filterArch").addEventListener("change", renderTable);
+      document.getElementById("filterPhase").addEventListener("change", renderTable);
+      document.getElementById("filterRole").addEventListener("change", renderTable);
+      document.getElementById("filterVerification").addEventListener("change", renderTable);
+
+      // Buttons
+      document.getElementById("btnConfirmAll").addEventListener("click", () => {
+        dataset.forEach(d => {
+          if (d.verification === "Automatically Detected") {
+            d.verification = "User Confirmed";
+          }
+        });
+        updateMetrics();
+        renderTable();
+      });
+
+      document.getElementById("btnResetAll").addEventListener("click", () => {
+        dataset = JSON.parse(JSON.stringify(INITIAL_DATA));
+        updateMetrics();
+        renderTable();
+      });
+
+      document.getElementById("btnExportCSV").addEventListener("click", exportToCSV);
+      document.getElementById("btnExportJSON").addEventListener("click", exportToJSON);
+
+      // Modal Close
+      document.getElementById("modalCloseBtn").addEventListener("click", () => {
+        document.getElementById("evidenceModal").classList.add("hidden");
+      });
+      document.getElementById("modalOkBtn").addEventListener("click", () => {
+        document.getElementById("evidenceModal").classList.add("hidden");
+      });
+
+      // View Tab Switches
+      const tabTable = document.getElementById("tabTableView");
+      const tabTree = document.getElementById("tabTreeView");
+      const tabInventory = document.getElementById("tabInventoryView");
+
+      const conTable = document.getElementById("containerTableView");
+      const conTree = document.getElementById("containerTreeView");
+      const conInventory = document.getElementById("containerInventoryView");
+
+      tabTable.addEventListener("click", () => {
+        tabTable.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] transition-colors flex items-center gap-1.5";
+        tabTree.className = "px-4 py-2 text-xs font-medium rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1.5";
+        tabInventory.className = "px-4 py-2 text-xs font-medium rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1.5";
+        conTable.classList.remove("hidden");
+        conTree.classList.add("hidden");
+        conInventory.classList.add("hidden");
+      });
+
+      tabTree.addEventListener("click", () => {
+        tabTree.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] transition-colors flex items-center gap-1.5";
+        tabTable.className = "px-4 py-2 text-xs font-medium rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1.5";
+        tabInventory.className = "px-4 py-2 text-xs font-medium rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1.5";
+        conTable.classList.add("hidden");
+        conTree.classList.remove("hidden");
+        conInventory.classList.add("hidden");
+        renderTreeView();
+      });
+
+      tabInventory.addEventListener("click", () => {
+        tabInventory.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] transition-colors flex items-center gap-1.5";
+        tabTable.className = "px-4 py-2 text-xs font-medium rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1.5";
+        tabTree.className = "px-4 py-2 text-xs font-medium rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1.5";
+        conTable.classList.add("hidden");
+        conTree.classList.add("hidden");
+        conInventory.classList.remove("hidden");
+        renderInventoryView();
+      });
+    });
+  </script>
+</body>
+</html>
