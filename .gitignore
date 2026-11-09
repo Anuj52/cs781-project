@@ -1,12 +1,13 @@
 # =============================================================================
 # CS781 Legal Intelligence System — Code-Only .gitignore
-# Tracks only source code (*.ipynb, *.py) and repository config (.gitignore,
-# .gitattributes, README.md). Excludes reports, PDFs, datasets, checkpoints,
-# figures, and audit artifacts.
+# Tracks only code/phase1..phase7 (*.ipynb, *.py, README.md) and repo config.
+# Excludes report/, PDFs, datasets, checkpoints, figures, and audit artifacts.
 # =============================================================================
 
-# --- 1. Reports, Documents & LaTeX Build Artifacts ---
+# --- 1. Reports, Submission Archive & LaTeX Build Artifacts ---
+report/
 report.tex
+CS781-CP-*.zip
 *.pdf
 *.docx
 *.doc
@@ -75,8 +76,10 @@ Thumbs.db
 .idea/
 
 # --- 6. Explicitly Ensure Code & Repo Config Are Tracked ---
-!*.ipynb
-!*.py
+!code/**/*.ipynb
+!code/**/*.py
+!code/**/README.md
+!section3_audit/plot_data.py
 !README.md
 !.gitignore
 !.gitattributes
