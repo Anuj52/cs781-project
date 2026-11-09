@@ -1,5 +1,0 @@
-Split_Name,Pairs_Count,Doc_Word_Min,Doc_Word_P10,Doc_Word_Median,Doc_Word_Mean,Doc_Word_P90,Doc_Word_Max,Sum_Word_Min,Sum_Word_P10,Sum_Word_Median,Sum_Word_Mean,Sum_Word_P90,Sum_Word_Max,Median_Compression_Ratio,Notes
-Raw Available Pairs,7030,93,1120,3128,4210,7851,139645,0,293,638,815,1501,27768,4.9,Contains 1 empty summary pair (cleaned in cell 10)
-Train Split (Clean),6677,93,1115,3128,4212,7848,139645,12,294,638,816,1500,27768,4.9,Cleaned training set used for all adapter/PEFT training
-Validation Split,352,145,1180,3110,4180,7890,68400,45,290,632,805,1510,18500,4.92,Internal validation split for BERTScore F1 checkpoint selection
-Test Set,100,511,1240,3171,4340,8562,39695,-1,-1,-1,-1,-1,-1,-1.0,Official test set; generation target max_tokens = 512

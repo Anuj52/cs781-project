@@ -1,0 +1,82 @@
+# =============================================================================
+# CS781 Legal Intelligence System — Code-Only .gitignore
+# Tracks only source code (*.ipynb, *.py) and repository config (.gitignore,
+# .gitattributes, README.md). Excludes reports, PDFs, datasets, checkpoints,
+# figures, and audit artifacts.
+# =============================================================================
+
+# --- 1. Reports, Documents & LaTeX Build Artifacts ---
+report.tex
+*.pdf
+*.docx
+*.doc
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# --- 2. Audit Packages, Logs, Spreadsheets & Figures ---
+CS781_Project_Audit/
+section3_audit/*.csv
+section3_audit/*.md
+section3_audit/*.png
+*.csv
+*.xlsx
+*.xls
+*.html
+*.png
+*.jpg
+*.jpeg
+*.svg
+*_report.md
+*_inventory.md
+
+# --- 3. Model Checkpoints, Token Binaries & Raw Datasets ---
+*.pt
+*.pth
+*.bin
+*.ckpt
+*.safetensors
+*.onnx
+*.npy
+*.npz
+*.jsonl
+*.zip
+*.tar
+*.gz
+data/
+raw/
+tokens/
+checkpoints/
+submissions/
+
+# --- 4. Python, Jupyter & Virtual Environments ---
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# --- 5. OS & Editor Metadata ---
+desktop.ini
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
+
+# --- 6. Explicitly Ensure Code & Repo Config Are Tracked ---
+!*.ipynb
+!*.py
+!README.md
+!.gitignore
+!.gitattributes

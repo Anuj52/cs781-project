@@ -1,4 +1,0 @@
-Split_Name,Document_Count,Unique_Statute_Classes,Mean_Labels_Per_Doc,Median_Labels_Per_Doc,Max_Labels_Per_Doc,Min_Statute_Frequency,Median_Statute_Frequency,Max_Statute_Frequency,Head_To_Tail_Ratio,Statute_ID_Range,Preprocessing_Strategy
-Train,42750,100,3.71,3,31,272,679,11731,43.13,0 to 99,"Dual-view pre-tokenization (Head + Tail zones, 256/384 tokens)"
-Dev,10181,100,3.69,3,28,65,162,2814,43.29,0 to 99,Used for per-class threshold calibration and model selection
-Test,13019,100,-1.0,-1,-1,-1,-1,-1,-1.0,0 to 99,Evaluated via Codabench (Primary Metric: Macro-F1)
